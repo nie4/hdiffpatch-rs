@@ -152,14 +152,25 @@ pub(crate) struct CoverHeader {
 
 impl CoverHeader {
     pub fn new(old_pos: i64, new_pos: i64, cover_length: i64, next_cover_index: i64) -> Self {
-        Self { old_pos, new_pos, cover_length, next_cover_index }
+        Self {
+            old_pos,
+            new_pos,
+            cover_length,
+            next_cover_index,
+        }
     }
 }
 
 pub(crate) trait PatchCore {
     fn set_directory_reference_pair(&mut self, pair: DirectoryReferencePair);
     fn set_size_to_be_patched(&mut self, size_to_be_patched: i64, size_to_patch: i64);
-    fn uncover_buffer_clips_stream(&mut self, clips: &mut [Box<dyn Read>], input_stream: &mut dyn SeekableRead, output_stream: &mut dyn Write, header_info: &HeaderInfo);
+    fn uncover_buffer_clips_stream(
+        &mut self,
+        clips: &mut [Box<dyn Read>],
+        input_stream: &mut dyn SeekableRead,
+        output_stream: &mut dyn Write,
+        header_info: &HeaderInfo,
+    );
 }
 
 pub(crate) trait SeekableRead: Read + std::io::Seek {}

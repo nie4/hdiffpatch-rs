@@ -1,9 +1,9 @@
-pub(crate) mod parser;
-pub(crate) mod structs;
 pub(crate) mod compression_utils;
 pub(crate) mod header;
-pub(crate) mod patch_single;
+pub(crate) mod parser;
 pub(crate) mod patch_core;
 pub(crate) mod patch_dir;
 pub(crate) mod patch_krdir;
 pub(crate) mod patch_sf;
+pub(crate) mod patch_single;
+pub(crate) mod structs;
