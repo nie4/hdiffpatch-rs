@@ -13,11 +13,9 @@ mod utils;
 
 // RIP tests
 
-pub fn patch_hdiff(
-    source_path: &Path,
-    diff_path: &Path,
-    dest_path: &Path,
-) -> Result<(), Box<dyn std::error::Error>> {
+pub type Result<T> = std::result::Result<T, Box<dyn std::error::Error + Send + Sync + 'static>>;
+
+pub fn patch_hdiff(source_path: &Path, diff_path: &Path, dest_path: &Path) -> Result<()> {
     let mut diff_file = File::open(diff_path)?;
 
     let mut header_info = Default::default();
@@ -63,11 +61,7 @@ pub fn patch_hdiff(
 }
 
 /// "extremely cursed"
-pub fn patch_krdiff(
-    source_path: &Path,
-    diff_path: &Path,
-    dest_path: &Path,
-) -> Result<(), Box<dyn std::error::Error>> {
+pub fn patch_krdiff(source_path: &Path, diff_path: &Path, dest_path: &Path) -> Result<()> {
     if !source_path.exists() || !source_path.is_dir() {
         return Err(format!(
             "[KrDiff] Source path {} does not exist or is not a directory",

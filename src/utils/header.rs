@@ -1,3 +1,4 @@
+use crate::Result;
 use crate::utils::parser::BinaryExtensions;
 use crate::utils::structs::{
     ChecksumMode, DataReferenceInfo, DiffChunkInfo, DiffSingleChunkInfo, HeaderInfo,
@@ -15,7 +16,7 @@ impl Header {
         diff_path: &Path,
         header_info: &mut HeaderInfo,
         reference_info: &mut DataReferenceInfo,
-    ) -> Result<bool, Box<dyn std::error::Error>> {
+    ) -> Result<bool> {
         *header_info = HeaderInfo::default();
         *reference_info = DataReferenceInfo::default();
 
@@ -98,7 +99,7 @@ impl Header {
         diff_path: &Path,
         header_info: &mut HeaderInfo,
         reference_info: &mut DataReferenceInfo,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    ) -> Result<()> {
         let cur_pos = sr.stream_position()? as i64;
         reference_info.head_data_offset = cur_pos;
 
@@ -142,7 +143,7 @@ impl Header {
         diff_path: &Path,
         header_info: &mut HeaderInfo,
         reference_info: &mut DataReferenceInfo,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    ) -> Result<()> {
         sr.seek(SeekFrom::Start(reference_info.hdiff_data_offset as u64))?;
         let single_compressed_header_line = sr.read_string_to_null(512)?;
         let single_compressed_header_arr: Vec<&str> =
@@ -181,7 +182,7 @@ impl Header {
         diff_path: &Path,
         header_info: &mut HeaderInfo,
         reference_info: &DataReferenceInfo,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    ) -> Result<()> {
         header_info.patch_path = diff_path.display().to_string();
         header_info.single_chunk_info = DiffSingleChunkInfo::default();
 
@@ -219,7 +220,7 @@ impl Header {
         sr: &mut R,
         diff_path: &Path,
         header_info: &mut HeaderInfo,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    ) -> Result<()> {
         header_info.patch_path = diff_path.display().to_string();
 
         let type_end_pos = sr.stream_position()? as i64;
@@ -251,7 +252,7 @@ impl Header {
         sr: &mut R,
         chunk_info: &mut DiffChunkInfo,
         type_end_pos: i64,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    ) -> Result<()> {
         *chunk_info = DiffChunkInfo::default();
         chunk_info.types_end_pos = type_end_pos;
 
@@ -316,7 +317,7 @@ impl Header {
         sr: &mut R,
         header_info: &mut HeaderInfo,
         reference_info: &mut DataReferenceInfo,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    ) -> Result<()> {
         header_info.is_input_dir = sr.read_boolean()?;
         header_info.is_output_dir = sr.read_boolean()?;
 
@@ -413,16 +414,13 @@ impl Header {
         Ok(())
     }
 
-    fn try_seek_header<R: Read + Seek>(
-        sr: &mut R,
-        skip_long_size: i32,
-    ) -> Result<(), Box<dyn std::error::Error>> {
+    fn try_seek_header<R: Read + Seek>(sr: &mut R, skip_long_size: i32) -> Result<()> {
         let len = skip_long_size.min(4 << 10);
         sr.seek(SeekFrom::Current(len as i64))?;
         Ok(())
     }
 
-    fn try_get_version(str_val: &str) -> Result<i64, Box<dyn std::error::Error>> {
+    fn try_get_version(str_val: &str) -> Result<i64> {
         let idx = str_val.find(Self::HDIFF_HEAD).ok_or_else(|| {
             format!(
                 "[Header::TryGetVersion] Cannot find 'HDIFF' in: {}",
